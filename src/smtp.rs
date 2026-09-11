@@ -35,6 +35,51 @@ async fn write_line(wr: &mut OwnedWriteHalf, line: &str) -> Result<()> {
     Ok(())
 }
 
+/// Minimal SMTP client: delivers a raw message to a running rmpt server.
+pub async fn send_raw(host: &str, port: u16, from: &str, to: &[String], raw: &[u8]) -> Result<()> {
+    let stream = TcpStream::connect((host, port)).await?;
+    let (rd, mut wr) = stream.into_split();
+    let mut reader = BufReader::new(rd);
+
+    read_line(&mut reader, 2048).await?; // greeting
+
+    write_line(&mut wr, "EHLO rmpt-cli").await?;
+    loop {
+        let l = read_line(&mut reader, 2048)
+            .await?
+            .unwrap_or_default();
+        if !l.starts_with("250-") {
+            break;
+        }
+    }
+
+    write_line(&mut wr, &format!("MAIL FROM:<{from}>")).await?;
+    let _ = read_line(&mut reader, 2048).await?;
+    for rcpt in to {
+        write_line(&mut wr, &format!("RCPT TO:<{rcpt}>")).await?;
+        let _ = read_line(&mut reader, 2048).await?;
+    }
+
+    write_line(&mut wr, "DATA").await?;
+    let _ = read_line(&mut reader, 2048).await?;
+
+    for line in raw.split(|&b| b == b'\n') {
+        let line = line.strip_suffix(b"\r").unwrap_or(line);
+        if line.starts_with(b".") {
+            wr.write_all(b".").await?;
+        }
+        wr.write_all(line).await?;
+        wr.write_all(b"\r\n").await?;
+    }
+    wr.write_all(b".\r\n").await?;
+    wr.flush().await?;
+    let _ = read_line(&mut reader, 2048).await?;
+
+    write_line(&mut wr, "QUIT").await?;
+    let _ = read_line(&mut reader, 2048).await?;
+    Ok(())
+}
+
 /// Reads a single line (up to a `\n`). Strips trailing CR/LF. Returns None on clean EOF.
 async fn read_line(reader: &mut BufReader<OwnedReadHalf>, max: usize) -> Result<Option<String>> {
     let mut buf: Vec<u8> = Vec::with_capacity(128);

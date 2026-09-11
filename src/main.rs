@@ -1,3 +1,4 @@
+mod cli;
 mod config;
 mod parse;
 mod smtp;
@@ -17,6 +18,14 @@ async fn main() -> Result<()> {
         )
         .init();
 
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    match args.first().map(String::as_str) {
+        Some("test") | Some("send") | Some("test:mail") | Some("test-mail") => cli::send_test().await,
+        _ => run_server().await,
+    }
+}
+
+async fn run_server() -> Result<()> {
     let config = config::Config::from_env();
     let store = Arc::new(store::Store::open(&config.db_path)?);
     tracing::info!(

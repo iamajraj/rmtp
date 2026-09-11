@@ -10,6 +10,17 @@ No real mail is ever sent. No configuration required.
 cargo run
 ```
 
+### Quick test — no code needed
+
+Send a test email instantly with a single command (no arguments required):
+
+```bash
+cargo run -- test
+```
+
+If the server is already running it delivers over SMTP; if not, it starts the
+server and seeds one test email, then stays alive.
+
 | Port | Purpose |
 | --- | --- |
 | `1025` | SMTP server (what your app connects to) |
@@ -122,9 +133,10 @@ compile time, so UI changes require a rebuild.
 
 ```
 src/
-  main.rs      # entry point, wires everything together
+  main.rs      # entry point: `rmpt` = server, `rmpt test` = test email
+  cli.rs       # test-email sender (boots server or uses the running one)
   config.rs    # environment-based configuration
-  smtp.rs      # SMTP protocol server (tokio)
+  smtp.rs      # SMTP protocol server + minimal client (tokio)
   parse.rs     # MIME parsing (mail-parser)
   store.rs     # SQLite persistence
   web.rs       # Axum web server + JSON API
