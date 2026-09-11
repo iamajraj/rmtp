@@ -28,25 +28,25 @@ impl Default for Config {
 impl Config {
     pub fn from_env() -> Self {
         let mut cfg = Self::default();
-        if let Ok(v) = env::var("RMPT_SMTP_HOST") {
+        if let Ok(v) = env::var("RMTP_SMTP_HOST") {
             cfg.smtp_host = v;
         }
-        if let Ok(v) = env::var("RMPT_SMTP_PORT") {
+        if let Ok(v) = env::var("RMTP_SMTP_PORT") {
             cfg.smtp_port = v.parse().unwrap_or(cfg.smtp_port);
         }
-        if let Ok(v) = env::var("RMPT_HTTP_HOST") {
+        if let Ok(v) = env::var("RMTP_HTTP_HOST") {
             cfg.http_host = v;
         }
-        if let Ok(v) = env::var("RMPT_HTTP_PORT") {
+        if let Ok(v) = env::var("RMTP_HTTP_PORT") {
             cfg.http_port = v.parse().unwrap_or(cfg.http_port);
         }
-        if let Ok(v) = env::var("RMPT_HOSTNAME") {
+        if let Ok(v) = env::var("RMTP_HOSTNAME") {
             cfg.hostname = v;
         }
-        if let Ok(v) = env::var("RMPT_DB_PATH") {
+        if let Ok(v) = env::var("RMTP_DB_PATH") {
             cfg.db_path = v;
         }
-        if let Ok(v) = env::var("RMPT_MAX_MESSAGE_SIZE") {
+        if let Ok(v) = env::var("RMTP_MAX_MESSAGE_SIZE") {
             cfg.max_message_size = v.parse().unwrap_or(cfg.max_message_size);
         }
         cfg

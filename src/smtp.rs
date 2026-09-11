@@ -35,7 +35,7 @@ async fn write_line(wr: &mut OwnedWriteHalf, line: &str) -> Result<()> {
     Ok(())
 }
 
-/// Minimal SMTP client: delivers a raw message to a running rmpt server.
+/// Minimal SMTP client: delivers a raw message to a running rmtp server.
 pub async fn send_raw(host: &str, port: u16, from: &str, to: &[String], raw: &[u8]) -> Result<()> {
     let stream = TcpStream::connect((host, port)).await?;
     let (rd, mut wr) = stream.into_split();
@@ -43,7 +43,7 @@ pub async fn send_raw(host: &str, port: u16, from: &str, to: &[String], raw: &[u
 
     read_line(&mut reader, 2048).await?; // greeting
 
-    write_line(&mut wr, "EHLO rmpt-cli").await?;
+    write_line(&mut wr, "EHLO rmtp-cli").await?;
     loop {
         let l = read_line(&mut reader, 2048)
             .await?
@@ -122,7 +122,7 @@ async fn handle_connection(
     let (rd, mut wr) = stream.into_split();
     let mut reader = BufReader::new(rd);
 
-    write_line(&mut wr, &format!("220 {hostname} rmpt local mail capture")).await?;
+    write_line(&mut wr, &format!("220 {hostname} rmtp local mail capture")).await?;
 
     let mut mail_from: Option<String> = None;
     let mut rcpt_to: Vec<String> = Vec::new();
