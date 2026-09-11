@@ -97,8 +97,15 @@ variables:
 | `RMPT_HTTP_HOST` | `0.0.0.0` | Web inbox bind address |
 | `RMPT_HTTP_PORT` | `8025` | Web inbox port |
 | `RMPT_HOSTNAME` | `localhost` | Hostname advertised in the SMTP greeting |
-| `RMPT_DB_PATH` | `rmpt.db` | SQLite database file |
+| `RMPT_DB_PATH` | *(empty)* | SQLite database file. Empty = in-memory only (nothing written to disk) |
 | `RMPT_MAX_MESSAGE_SIZE` | `10485760` | Max message size in bytes |
+
+By default messages are kept **in memory only** — no files are created. Set
+`RMPT_DB_PATH` to a path to persist mail across restarts:
+
+```bash
+RMPT_DB_PATH=~/.rmpt.db cargo run
+```
 
 Example:
 

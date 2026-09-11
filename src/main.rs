@@ -28,13 +28,18 @@ async fn main() -> Result<()> {
 async fn run_server() -> Result<()> {
     let config = config::Config::from_env();
     let store = Arc::new(store::Store::open(&config.db_path)?);
+    let db_desc = if config.db_path.is_empty() {
+        "in-memory".to_string()
+    } else {
+        config.db_path.clone()
+    };
     tracing::info!(
         "rmpt started: smtp={}:{} http=http://{}:{} db={}",
         config.smtp_host,
         config.smtp_port,
         config.http_host,
         config.http_port,
-        config.db_path
+        db_desc
     );
 
     let web_state = web::AppState {

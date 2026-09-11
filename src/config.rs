@@ -19,7 +19,7 @@ impl Default for Config {
             http_host: "0.0.0.0".into(),
             http_port: 8025,
             hostname: "localhost".into(),
-            db_path: "rmpt.db".into(),
+            db_path: String::new(), // empty = in-memory only, no files on disk
             max_message_size: 10 * 1024 * 1024,
         }
     }

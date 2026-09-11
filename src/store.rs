@@ -59,8 +59,14 @@ pub struct Message {
 
 impl Store {
     pub fn open(path: &str) -> Result<Self> {
-        let conn = Connection::open(path)?;
-        conn.pragma_update(None, "journal_mode", "WAL")?;
+        let conn = if path.is_empty() {
+            Connection::open_in_memory()?
+        } else {
+            Connection::open(path)?
+        };
+        if !path.is_empty() {
+            conn.pragma_update(None, "journal_mode", "WAL")?;
+        }
         conn.execute_batch(
             "
             CREATE TABLE IF NOT EXISTS messages (
